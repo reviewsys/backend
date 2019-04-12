@@ -3,7 +3,8 @@ package repository
 import (
 	"database/sql"
 	"errors"
-	"log"
+
+	log "github.com/sirupsen/logrus"
 
 	"github.com/reviewsys/backend/app/models"
 )
@@ -22,7 +23,7 @@ func (m *databaseUserRepository) fetch(query string, args ...interface{}) ([]*mo
 	rows, err := m.Conn.Query(query, args...)
 
 	if err != nil {
-		log.Fatal(err)
+		log.Error(err)
 		return nil, models.INTERNAL_SERVER_ERROR
 	}
 	defer rows.Close()
@@ -39,7 +40,7 @@ func (m *databaseUserRepository) fetch(query string, args ...interface{}) ([]*mo
 		)
 
 		if err != nil {
-			log.Fatal(err)
+			log.Error(err)
 			return nil, models.INTERNAL_SERVER_ERROR
 		}
 		result = append(result, t)
@@ -100,12 +101,12 @@ func (m *databaseUserRepository) Store(u *models.User) (int64, error) {
 	query := `INSERT user SET team_id=? , name=? , is_admin=? , updated_at=? , created_at=?`
 	stmt, err := m.Conn.Prepare(query)
 	if err != nil {
-		log.Fatal(err)
+		log.Error(err)
 		return 0, models.INTERNAL_SERVER_ERROR
 	}
 	res, err := stmt.Exec(u.TeamID, u.Name, u.IsAdmin, u.CreatedAt, u.UpdatedAt)
 	if err != nil {
-		log.Fatal(err)
+		log.Error(err)
 		return 0, models.INTERNAL_SERVER_ERROR
 	}
 	return res.LastInsertId()
@@ -116,17 +117,17 @@ func (m *databaseUserRepository) Delete(id int64) (bool, error) {
 
 	stmt, err := m.Conn.Prepare(query)
 	if err != nil {
-		log.Fatal(err)
+		log.Error(err)
 		return false, models.INTERNAL_SERVER_ERROR
 	}
 	res, err := stmt.Exec(id)
 	if err != nil {
-		log.Fatal(err)
+		log.Error(err)
 		return false, models.INTERNAL_SERVER_ERROR
 	}
 	rowsAfected, err := res.RowsAffected()
 	if err != nil {
-		log.Fatal(err)
+		log.Error(err)
 		return false, models.INTERNAL_SERVER_ERROR
 	}
 	if rowsAfected <= 0 {
@@ -141,17 +142,17 @@ func (m *databaseUserRepository) Update(u *models.User) (*models.User, error) {
 
 	stmt, err := m.Conn.Prepare(query)
 	if err != nil {
-		log.Fatal(err)
+		log.Error(err)
 		return nil, err
 	}
 	res, err := stmt.Exec(u.TeamID, u.Name, u.IsAdmin, u.UpdatedAt, u.ID)
 	if err != nil {
-		log.Fatal(err)
+		log.Error(err)
 		return nil, err
 	}
 	affect, err := res.RowsAffected()
 	if err != nil {
-		log.Fatal(err)
+		log.Error(err)
 		return nil, err
 	}
 	if affect < 1 {

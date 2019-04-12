@@ -1,7 +1,7 @@
 package grpc
 
 import (
-	"log"
+	log "github.com/sirupsen/logrus"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
@@ -59,7 +59,7 @@ func (s *server) GetUser(ctx context.Context, in *user.SingleRequest) (*user.Use
 	}
 	u, err := s.usecase.GetByID(id)
 	if err != nil {
-		log.Println(err.Error())
+		log.Error(err)
 		return nil, err
 	}
 	if u == nil {
