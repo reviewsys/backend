@@ -9,8 +9,6 @@ import (
 	proto "github.com/golang/protobuf/proto"
 	timestamp "github.com/golang/protobuf/ptypes/timestamp"
 	grpc "google.golang.org/grpc"
-	codes "google.golang.org/grpc/codes"
-	status "google.golang.org/grpc/status"
 	math "math"
 )
 
@@ -248,14 +246,6 @@ func (c *userServiceClient) GetUser(ctx context.Context, in *SingleRequest, opts
 // UserServiceServer is the server API for UserService service.
 type UserServiceServer interface {
 	GetUser(context.Context, *SingleRequest) (*User, error)
-}
-
-// UnimplementedUserServiceServer can be embedded to have forward compatible implementations.
-type UnimplementedUserServiceServer struct {
-}
-
-func (*UnimplementedUserServiceServer) GetUser(ctx context.Context, req *SingleRequest) (*User, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetUser not implemented")
 }
 
 func RegisterUserServiceServer(s *grpc.Server, srv UserServiceServer) {
