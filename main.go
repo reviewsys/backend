@@ -14,6 +14,7 @@ import (
 	appRepo "github.com/reviewsys/backend/app/repository"
 	appUcase "github.com/reviewsys/backend/app/usecase"
 
+	_ "github.com/lib/pq"
 	cfg "github.com/reviewsys/backend/config"
 	"google.golang.org/grpc"
 )
