@@ -3,7 +3,6 @@ package main
 import (
 	"database/sql"
 	"fmt"
-	"log"
 	"net"
 	"net/http"
 	"net/url"
@@ -16,7 +15,7 @@ import (
 	deliveryGrpc "github.com/reviewsys/backend/app/delivery/grpc"
 	appRepo "github.com/reviewsys/backend/app/repository"
 	appUcase "github.com/reviewsys/backend/app/usecase"
-	"github.com/sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 
 	_ "github.com/lib/pq"
 	cfg "github.com/reviewsys/backend/config"
@@ -24,26 +23,25 @@ import (
 )
 
 var (
-	config       cfg.Config
-	logrusLogger *logrus.Logger
-	customFunc   grpc_logrus.CodeToLevel
+	config     cfg.Config
+	customFunc grpc_logrus.CodeToLevel
 )
 
 func init() {
 	config = cfg.NewViperConfig()
 
 	if config.GetBool(`debug`) {
-		fmt.Println("Service RUN on DEBUG mode")
+		log.SetLevel(log.DebugLevel)
+		log.Debug("Service RUN on DEBUG mode")
+	} else {
+		log.SetLevel(log.InfoLevel)
 	}
-	log.SetFlags(log.LstdFlags | log.Lshortfile)
 }
 
 func main() {
-
 	// Logrus entry is used, allowing pre-definition of certain fields by the user.
-	logrusLogger = logrus.New()
-	logrusLogger.SetFormatter(&logrus.JSONFormatter{})
-	logrusEntry := logrus.NewEntry(logrusLogger)
+	logger := log.NewEntry(log.New())
+	log.SetFormatter(&log.JSONFormatter{})
 	// Shared options for the logger, with a custom gRPC code to log level function.
 
 	customFunc = grpc_logrus.DefaultCodeToLevel
@@ -59,7 +57,7 @@ func main() {
 	//}
 
 	// Make sure that log statements internal to gRPC library are logged using the logrus Logger as well.
-	grpc_logrus.ReplaceGrpcLogger(logrusEntry)
+	grpc_logrus.ReplaceGrpcLogger(logger)
 
 	dbHost := config.GetString(`database.host`)
 	dbPort := config.GetString(`database.port`)
@@ -73,7 +71,7 @@ func main() {
 	dsn := fmt.Sprintf("%s?%s", connection, val.Encode())
 	dbConn, err := sql.Open(`postgres`, dsn)
 	if err != nil && config.GetBool("debug") {
-		fmt.Println(err)
+		log.Error(err)
 	}
 	defer dbConn.Close()
 
@@ -81,24 +79,24 @@ func main() {
 	au := appUcase.NewUserUsecase(ar)
 	list, err := net.Listen("tcp", config.GetString("server.address"))
 	if err != nil {
-		fmt.Println("SOMETHING HAPPEN")
+		log.Error("SOMETHING HAPPEN")
 	}
 
 	s := grpc.NewServer(
 		grpc.StreamInterceptor(grpc_middleware.ChainStreamServer(
 			grpc_prometheus.StreamServerInterceptor,
-			grpc_logrus.StreamServerInterceptor(logrusEntry, opts...),
+			grpc_logrus.StreamServerInterceptor(logger, opts...),
 			grpc_recovery.StreamServerInterceptor(),
 		)),
 		grpc.UnaryInterceptor(grpc_middleware.ChainUnaryServer(
 			grpc_prometheus.UnaryServerInterceptor,
-			grpc_logrus.UnaryServerInterceptor(logrusEntry, opts...),
+			grpc_logrus.UnaryServerInterceptor(logger, opts...),
 			grpc_recovery.UnaryServerInterceptor(),
 		)),
 	)
 
 	deliveryGrpc.NewAppServerGrpc(s, au)
-	fmt.Println("Server Run at ", config.GetString("server.address"))
+	log.Info("Server Run at ", config.GetString("server.address"))
 
 	grpc_prometheus.Register(s)
 	// Register Prometheus metrics handler.
@@ -106,6 +104,6 @@ func main() {
 
 	err = s.Serve(list)
 	if err != nil {
-		fmt.Println("Unexpected Error", err)
+		log.Error("Unexpected Error", err)
 	}
 }
