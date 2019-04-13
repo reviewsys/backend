@@ -1,11 +1,11 @@
 package main
 
 import (
-	"database/sql"
 	"fmt"
 	"net"
 	"net/http"
-	"net/url"
+
+	"github.com/jinzhu/gorm"
 
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	grpc_logrus "github.com/grpc-ecosystem/go-grpc-middleware/logging/logrus"
@@ -13,11 +13,12 @@ import (
 	grpc_prometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	deliveryGrpc "github.com/reviewsys/backend/app/delivery/grpc"
+	"github.com/reviewsys/backend/app/models"
 	appRepo "github.com/reviewsys/backend/app/repository"
 	appUcase "github.com/reviewsys/backend/app/usecase"
 	log "github.com/sirupsen/logrus"
 
-	_ "github.com/lib/pq"
+	_ "github.com/jinzhu/gorm/dialects/postgres"
 	cfg "github.com/reviewsys/backend/config"
 	"google.golang.org/grpc"
 )
@@ -64,18 +65,30 @@ func main() {
 	dbUser := config.GetString(`database.user`)
 	dbPass := config.GetString(`database.pass`)
 	dbName := config.GetString(`database.name`)
-	connection := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", dbUser, dbPass, dbHost, dbPort, dbName)
-	val := url.Values{}
-	val.Add("parseTime", "1")
-	val.Add("loc", "Asia/Tokyo")
-	dsn := fmt.Sprintf("%s?%s", connection, val.Encode())
-	dbConn, err := sql.Open(`postgres`, dsn)
-	if err != nil && config.GetBool("debug") {
+
+	dsn := fmt.Sprintf("host=%s port=%s user=%s dbname=%s password=%s sslmode=disable",
+		dbHost,
+		dbPort,
+		dbUser,
+		dbName,
+		dbPass,
+	)
+	db, err := gorm.Open("postgres", dsn)
+	if err != nil {
+		log.Error("failed to connect database", err)
+	}
+	defer db.Close()
+
+	err = db.DB().Ping()
+	if nil != err {
 		log.Error(err)
 	}
-	defer dbConn.Close()
+	if config.GetBool(`debug`) {
+		db.LogMode(true)
+	}
+	db.AutoMigrate(&models.User{})
 
-	ar := appRepo.NewDatabaseUserRepository(dbConn)
+	ar := appRepo.NewDatabaseUserRepository(db)
 	au := appUcase.NewUserUsecase(ar)
 	list, err := net.Listen("tcp", config.GetString("server.address"))
 	if err != nil {

@@ -16,5 +16,6 @@ services:
     restart: always
     environment:
       POSTGRES_PASSWORD: password
-      POSTGRES_USER: reviewsys
+      POSTGRES_USER: root
+      POSTGRES_DB: reviewsys
     container_name: db
