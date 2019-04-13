@@ -1,0 +1,20 @@
+---
+version: "3.6"
+services:
+  backend:
+    image: reviewsys/backend:latest
+    build:
+      context: ./
+    ports:
+      - 8080:8080
+    volumes:
+      - ./config.json:/config.json
+    container_name: backend
+
+  db:
+    image: postgres:11.2-alpine
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: password
+      POSTGRES_USER: reviewsys
+    container_name: db
