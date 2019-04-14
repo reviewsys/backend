@@ -1,24 +1,78 @@
 syntax = "proto3";
 package user;
 import "google/protobuf/timestamp.proto";
+import "github.com/infobloxopen/protoc-gen-gorm/options/gorm.proto";
+import "github.com/infobloxopen/atlas-app-toolkit/rpc/resource/resource.proto";
+import "google/protobuf/field_mask.proto";
+import "github.com/infobloxopen/atlas-app-toolkit/query/collection_operators.proto";
+
+option go_package = "github.com/reviewsys/backend/app/delivery/grpc/user;user";
 
 service UserService {
-  rpc GetUser(SingleRequest) returns (User) {}
+  option (gorm.server).autogen = true;
+  rpc Create ( CreateUserRequest ) returns ( CreateUserResponse ) {}
+  rpc Read ( ReadUserRequest ) returns ( ReadUserResponse ) {}
+  rpc Update ( UpdateUserRequest ) returns ( UpdateUserResponse ) {}
+  rpc List ( ListUserRequest ) returns ( ListUserResponse ) {}
+  rpc Delete ( DeleteUserRequest ) returns  ( DeleteUserResponse ) {
+      option (gorm.method).object_type = "User";
+  }
 }
 
 message User {
-int64 ID = 1;
-int64 TeamId = 2;
-string Name = 3;
-bool IsAdmin = 4;
-google.protobuf.Timestamp      UpdatedAt=5;
-google.protobuf.Timestamp      CreatedAt=6;
+    option (gorm.opts) = {
+        ormable: true,
+        multi_account: true
+    };
+    atlas.rpc.Identifier id = 1 [(gorm.field).tag = {type: "uuid" primary_key: true}];
+    google.protobuf.Timestamp created_at = 2;
+    google.protobuf.Timestamp updated_at = 3;
+    int64 TeamId = 4;
+    string Name = 5;
+    bool IsAdmin = 6;
 }
 
-message SingleRequest {
-int64 id = 1;
+message CreateUserRequest {
+    User payload = 1;
 }
 
-message Users {
-    repeated User Users = 1;
+message CreateUserResponse {
+    User result = 1;
+}
+
+message ReadUserRequest {
+    atlas.rpc.Identifier id = 1;
+    infoblox.api.FieldSelection fields = 2;
+}
+
+message ReadUserResponse {
+    User result = 1;
+}
+
+message UpdateUserRequest {
+    User payload = 1;
+    google.protobuf.FieldMask gerogeri_gegege = 2;
+}
+
+message UpdateUserResponse {
+    User result = 1;
+}
+
+message DeleteUserRequest {
+    atlas.rpc.Identifier id = 1;
+}
+
+message DeleteUserResponse {
+}
+
+message ListUserRequest {
+    infoblox.api.Filtering filter = 1;
+    infoblox.api.Sorting order_by = 2;
+    infoblox.api.FieldSelection fields = 3;
+    infoblox.api.Pagination paging = 4;
+}
+
+message ListUserResponse {
+    repeated User results = 1;
+    infoblox.api.PageInfo page_info = 2;
 }
