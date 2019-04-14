@@ -9,8 +9,8 @@ proto:
 	protoc -I . \
 		-I vendor \
 		-I vendor/github.com/grpc-ecosystem/grpc-gateway \
-		--go_out=plugins=grpc:. \
-		--gorm_out=engine=postgres:. \
+		--go_out=plugins=grpc:${GOPATH}/src \
+		--gorm_out=engine=postgres:${GOPATH}/src \
 		app/delivery/grpc/*/*.proto
 
 build: proto
