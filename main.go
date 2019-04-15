@@ -13,7 +13,7 @@ import (
 	grpc_prometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	deliveryGrpc "github.com/reviewsys/backend/app/delivery/grpc"
-	"github.com/reviewsys/backend/app/models"
+	"github.com/reviewsys/backend/app/domain/model"
 	appRepo "github.com/reviewsys/backend/app/repository"
 	appUcase "github.com/reviewsys/backend/app/usecase"
 	log "github.com/sirupsen/logrus"
@@ -86,7 +86,7 @@ func main() {
 	if config.GetBool(`debug`) {
 		db.LogMode(true)
 	}
-	db.AutoMigrate(&models.User{})
+	db.AutoMigrate(&model.User{})
 
 	ar := appRepo.NewDatabaseUserRepository(db)
 	au := appUcase.NewUserUsecase(ar)

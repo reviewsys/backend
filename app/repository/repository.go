@@ -1,11 +1,14 @@
 package repository
 
-import "github.com/reviewsys/backend/app/models"
+import (
+	"github.com/infobloxopen/atlas-app-toolkit/rpc/resource"
+	"github.com/reviewsys/backend/app/domain/model"
+)
 
 type UserRepository interface {
-	GetByID(id int64) (*models.User, error)
-	Update(*models.User) error
-	GetByTeamID(teamID int64) (*models.User, error)
-	Store(*models.User) error
-	Delete(*models.User) error
+	GetByID(id *resource.Identifier) (*model.User, error)
+	Update(*model.User) error
+	GetByTeamID(teamID int64) (*model.User, error)
+	Store(*model.User) error
+	Delete(*model.User) error
 }

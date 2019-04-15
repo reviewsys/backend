@@ -4,7 +4,8 @@ import (
 	"github.com/jinzhu/gorm"
 	log "github.com/sirupsen/logrus"
 
-	"github.com/reviewsys/backend/app/models"
+	"github.com/infobloxopen/atlas-app-toolkit/rpc/resource"
+	"github.com/reviewsys/backend/app/domain/model"
 )
 
 type databaseUserRepository struct {
@@ -16,8 +17,8 @@ func NewDatabaseUserRepository(Conn *gorm.DB) UserRepository {
 	return &databaseUserRepository{Conn}
 }
 
-func (r *databaseUserRepository) GetByID(id int64) (*models.User, error) {
-	user := models.User{}
+func (r *databaseUserRepository) GetByID(id *resource.Identifier) (*model.User, error) {
+	user := model.User{}
 	err := r.Conn.First(&user, id).Error
 	if err != nil {
 		log.Error(err)
@@ -26,8 +27,8 @@ func (r *databaseUserRepository) GetByID(id int64) (*models.User, error) {
 	return &user, nil
 }
 
-func (r *databaseUserRepository) GetByTeamID(teamID int64) (*models.User, error) {
-	user := models.User{}
+func (r *databaseUserRepository) GetByTeamID(teamID int64) (*model.User, error) {
+	user := model.User{}
 	err := r.Conn.First(&user, teamID).Error
 	if err != nil {
 		log.Error(err)
@@ -36,7 +37,7 @@ func (r *databaseUserRepository) GetByTeamID(teamID int64) (*models.User, error)
 	return &user, nil
 }
 
-func (r *databaseUserRepository) Store(user *models.User) error {
+func (r *databaseUserRepository) Store(user *model.User) error {
 	err := r.Conn.Create(&user).Error
 	if err != nil {
 		log.Error(err)
@@ -45,7 +46,7 @@ func (r *databaseUserRepository) Store(user *models.User) error {
 	return nil
 }
 
-func (r *databaseUserRepository) Delete(user *models.User) error {
+func (r *databaseUserRepository) Delete(user *model.User) error {
 	err := r.Conn.Delete(&user).Error
 	if err != nil {
 		log.Error(err)
@@ -54,7 +55,7 @@ func (r *databaseUserRepository) Delete(user *models.User) error {
 	return nil
 }
 
-func (r *databaseUserRepository) Update(user *models.User) error {
+func (r *databaseUserRepository) Update(user *model.User) error {
 	err := r.Conn.Save(&user).Error
 	if err != nil {
 		log.Error(err)
