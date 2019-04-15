@@ -190,7 +190,7 @@ type UserORMWithAfterCreate_ interface {
 }
 
 // DefaultReadUser executes a basic gorm read call
-func DefaultReadUser(ctx context.Context, in *User, db *gorm1.DB, fs *query1.FieldSelection) (*User, error) {
+func DefaultReadUser(ctx context.Context, in *User, db *gorm1.DB) (*User, error) {
 	if in == nil {
 		return nil, errors1.NilArgumentError
 	}
@@ -202,15 +202,15 @@ func DefaultReadUser(ctx context.Context, in *User, db *gorm1.DB, fs *query1.Fie
 		return nil, errors1.EmptyIdError
 	}
 	if hook, ok := interface{}(&ormObj).(UserORMWithBeforeReadApplyQuery); ok {
-		if db, err = hook.BeforeReadApplyQuery(ctx, db, fs); err != nil {
+		if db, err = hook.BeforeReadApplyQuery(ctx, db); err != nil {
 			return nil, err
 		}
 	}
-	if db, err = gorm2.ApplyFieldSelection(ctx, db, fs, &UserORM{}); err != nil {
+	if db, err = gorm2.ApplyFieldSelection(ctx, db, nil, &UserORM{}); err != nil {
 		return nil, err
 	}
 	if hook, ok := interface{}(&ormObj).(UserORMWithBeforeReadFind); ok {
-		if db, err = hook.BeforeReadFind(ctx, db, fs); err != nil {
+		if db, err = hook.BeforeReadFind(ctx, db); err != nil {
 			return nil, err
 		}
 	}
@@ -219,7 +219,7 @@ func DefaultReadUser(ctx context.Context, in *User, db *gorm1.DB, fs *query1.Fie
 		return nil, err
 	}
 	if hook, ok := interface{}(&ormResponse).(UserORMWithAfterReadFind); ok {
-		if err = hook.AfterReadFind(ctx, db, fs); err != nil {
+		if err = hook.AfterReadFind(ctx, db); err != nil {
 			return nil, err
 		}
 	}
@@ -228,13 +228,13 @@ func DefaultReadUser(ctx context.Context, in *User, db *gorm1.DB, fs *query1.Fie
 }
 
 type UserORMWithBeforeReadApplyQuery interface {
-	BeforeReadApplyQuery(context.Context, *gorm1.DB, *query1.FieldSelection) (*gorm1.DB, error)
+	BeforeReadApplyQuery(context.Context, *gorm1.DB) (*gorm1.DB, error)
 }
 type UserORMWithBeforeReadFind interface {
-	BeforeReadFind(context.Context, *gorm1.DB, *query1.FieldSelection) (*gorm1.DB, error)
+	BeforeReadFind(context.Context, *gorm1.DB) (*gorm1.DB, error)
 }
 type UserORMWithAfterReadFind interface {
-	AfterReadFind(context.Context, *gorm1.DB, *query1.FieldSelection) error
+	AfterReadFind(context.Context, *gorm1.DB) error
 }
 
 func DefaultDeleteUser(ctx context.Context, in *User, db *gorm1.DB) error {
@@ -375,7 +375,7 @@ func DefaultPatchUser(ctx context.Context, in *User, updateMask *field_mask1.Fie
 			return nil, err
 		}
 	}
-	pbReadRes, err := DefaultReadUser(ctx, &User{Id: in.GetId()}, db, nil)
+	pbReadRes, err := DefaultReadUser(ctx, &User{Id: in.GetId()}, db)
 	if err != nil {
 		return nil, err
 	}
@@ -556,7 +556,7 @@ func (m *UserServiceDefaultServer) Read(ctx context.Context, in *ReadUserRequest
 			return nil, err
 		}
 	}
-	res, err := DefaultReadUser(ctx, &User{Id: in.GetId()}, db, in.Fields)
+	res, err := DefaultReadUser(ctx, &User{Id: in.GetId()}, db)
 	if err != nil {
 		return nil, err
 	}

@@ -8,9 +8,9 @@ import (
 
 	"context"
 
-	google_protobuf "github.com/golang/protobuf/ptypes/timestamp"
+	"github.com/infobloxopen/atlas-app-toolkit/rpc/resource"
 	"github.com/reviewsys/backend/app/delivery/grpc/user"
-	models "github.com/reviewsys/backend/app/models"
+	"github.com/reviewsys/backend/app/domain/model"
 	_usecase "github.com/reviewsys/backend/app/usecase"
 )
 
@@ -28,44 +28,18 @@ type server struct {
 	usecase _usecase.UserUsecase
 }
 
-func (s *server) transformUserRPC(u *models.User) *user.User {
-
-	if u == nil {
-		return nil
+func (s *server) Read(ctx context.Context, req *user.ReadUserRequest) (*user.ReadUserResponse, error) {
+	var id *resource.Identifier
+	if req != nil {
+		id = req.Id
 	}
-
-	updatedAt := &google_protobuf.Timestamp{
-
-		Seconds: u.UpdatedAt.Unix(),
-	}
-	createdAt := &google_protobuf.Timestamp{
-		Seconds: u.CreatedAt.Unix(),
-	}
-	res := &user.User{
-		ID:        u.ID,
-		TeamId:    u.TeamID,
-		Name:      u.Name,
-		IsAdmin:   u.IsAdmin,
-		UpdatedAt: updatedAt,
-		CreatedAt: createdAt,
-	}
-	return res
-}
-
-func (s *server) GetUser(ctx context.Context, in *user.SingleRequest) (*user.User, error) {
-	id := int64(0)
-	if in != nil {
-		id = in.Id
-	}
-	u, err := s.usecase.GetByID(id)
+	resp, err := s.usecase.GetByID(id)
 	if err != nil {
 		log.Error(err)
 		return nil, err
 	}
-	if u == nil {
-		return nil, models.NOT_FOUND_ERROR
+	if resp == nil {
+		return nil, model.NOT_FOUND_ERROR
 	}
-
-	res := s.transformUserRPC(u)
-	return res, nil
+	return &user.ReadUserResponse(resp), nil
 }

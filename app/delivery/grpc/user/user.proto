@@ -42,7 +42,6 @@ message CreateUserResponse {
 
 message ReadUserRequest {
     atlas.rpc.Identifier id = 1;
-    infoblox.api.FieldSelection fields = 2;
 }
 
 message ReadUserResponse {
