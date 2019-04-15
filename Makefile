@@ -11,7 +11,7 @@ proto:
 		-I vendor/github.com/grpc-ecosystem/grpc-gateway \
 		--go_out=plugins=grpc:${GOPATH}/src \
 		--gorm_out=engine=postgres:${GOPATH}/src \
-		app/delivery/grpc/*/*.proto
+		app/interface/rpc/v1.0/protocol/*.proto
 
 build: proto
 	go build -o build/backend main.go
