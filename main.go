@@ -7,8 +7,8 @@ import (
 	"os"
 	"os/signal"
 
-	"github.com/hatajoe/8am/app/interface/rpc"
 	"github.com/jinzhu/gorm"
+	"github.com/reviewsys/backend/app/interface/rpc"
 
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	grpc_logrus "github.com/grpc-ecosystem/go-grpc-middleware/logging/logrus"
