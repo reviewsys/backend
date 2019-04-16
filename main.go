@@ -4,7 +4,10 @@ import (
 	"fmt"
 	"net"
 	"net/http"
+	"os"
+	"os/signal"
 
+	"github.com/hatajoe/8am/app/interface/rpc"
 	"github.com/jinzhu/gorm"
 
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
@@ -12,10 +15,8 @@ import (
 	grpc_recovery "github.com/grpc-ecosystem/go-grpc-middleware/recovery"
 	grpc_prometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
-	deliveryGrpc "github.com/reviewsys/backend/app/delivery/grpc"
 	"github.com/reviewsys/backend/app/domain/model"
-	appRepo "github.com/reviewsys/backend/app/repository"
-	appUcase "github.com/reviewsys/backend/app/usecase"
+	"github.com/reviewsys/backend/app/registry"
 	log "github.com/sirupsen/logrus"
 
 	_ "github.com/jinzhu/gorm/dialects/postgres"
@@ -88,14 +89,16 @@ func main() {
 	}
 	db.AutoMigrate(&model.User{})
 
-	ar := appRepo.NewDatabaseUserRepository(db)
-	au := appUcase.NewUserUsecase(ar)
+	ctn, err := registry.NewContainer()
+	if err != nil {
+		log.Errorf("failed to build container: %v", err)
+	}
 	list, err := net.Listen("tcp", config.GetString("server.address"))
 	if err != nil {
-		log.Error("SOMETHING HAPPEN")
+		log.Errorf("SOMETHING HAPPEN: %v", err)
 	}
 
-	s := grpc.NewServer(
+	server := grpc.NewServer(
 		grpc.StreamInterceptor(grpc_middleware.ChainStreamServer(
 			grpc_prometheus.StreamServerInterceptor,
 			grpc_logrus.StreamServerInterceptor(logger, opts...),
@@ -108,15 +111,25 @@ func main() {
 		)),
 	)
 
-	deliveryGrpc.NewAppServerGrpc(s, au)
-	log.Info("Server Run at ", config.GetString("server.address"))
+	rpc.Apply(server, ctx)
 
-	grpc_prometheus.Register(s)
+	grpc_prometheus.Register(server)
 	// Register Prometheus metrics handler.
 	http.Handle("/metrics", promhttp.Handler())
 
-	err = s.Serve(list)
-	if err != nil {
-		log.Error("Unexpected Error", err)
-	}
+	go func() {
+		log.Printf("start grpc server port: %s", port)
+		log.Info("Server Run at ", config.GetString("server.address"))
+		server.Serve(list)
+		if err != nil {
+			log.Errorf("Unexpected Error: %v", err)
+		}
+	}()
+
+	quit := make(chan os.Signal)
+	signal.Notify(quit, os.Interrupt)
+	<-quit
+	log.Println("stopping grpc server...")
+	server.GracefulStop()
+	ctn.Clean()
 }
