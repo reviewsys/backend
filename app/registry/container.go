@@ -1,6 +1,7 @@
 package registry
 
 import (
+	"github.com/jinzhu/gorm"
 	"github.com/reviewsys/backend/app/domain/service"
 	"github.com/reviewsys/backend/app/interface/persistence/database"
 	"github.com/reviewsys/backend/app/usecase"
@@ -12,7 +13,7 @@ type Container struct {
 	ctn di.Container
 }
 
-func NewContainer() (*Container, error) {
+func NewContainer(dsn string) (*Container, error) {
 	builder, err := di.NewBuilder()
 	if err != nil {
 		log.Error(err)
@@ -23,6 +24,18 @@ func NewContainer() (*Container, error) {
 		{
 			Name:  "user-usecase",
 			Build: buildUserUsecase,
+		},
+		{
+			Name:  "postgres",
+			Scope: di.App,
+			Build: func(ctn di.Container) (interface{}, error) {
+				db, err := gorm.Open("postgres", dsn)
+				db.DB().SetMaxIdleConns(100)
+				return db, err
+			},
+			Close: func(obj interface{}) error {
+				return obj.(*gorm.DB).Close()
+			},
 		},
 	}...); err != nil {
 		log.Error(err)
@@ -43,7 +56,9 @@ func (c *Container) Clean() error {
 }
 
 func buildUserUsecase(ctn di.Container) (interface{}, error) {
-	repo := database.NewUserRepository()
+	// Retrieve the connection.
+	db := ctn.Get("postgres").(*gorm.DB)
+	repo := database.NewUserRepository(db)
 	service := service.NewUserService(repo)
 	return usecase.NewUserUsecase(repo, service), nil
 }

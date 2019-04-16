@@ -7,7 +7,6 @@ import (
 	"os"
 	"os/signal"
 
-	"github.com/jinzhu/gorm"
 	"github.com/reviewsys/backend/app/interface/rpc"
 
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
@@ -19,6 +18,7 @@ import (
 	"github.com/reviewsys/backend/app/registry"
 	log "github.com/sirupsen/logrus"
 
+	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 	cfg "github.com/reviewsys/backend/config"
 	"google.golang.org/grpc"
@@ -74,22 +74,8 @@ func main() {
 		dbName,
 		dbPass,
 	)
-	db, err := gorm.Open("postgres", dsn)
-	if err != nil {
-		log.Error("failed to connect database", err)
-	}
-	defer db.Close()
 
-	err = db.DB().Ping()
-	if nil != err {
-		log.Error(err)
-	}
-	if config.GetBool(`debug`) {
-		db.LogMode(true)
-	}
-	db.AutoMigrate(&model.User{})
-
-	ctn, err := registry.NewContainer()
+	ctn, err := registry.NewContainer(dsn)
 	if err != nil {
 		log.Errorf("failed to build container: %v", err)
 	}
@@ -97,6 +83,8 @@ func main() {
 	if err != nil {
 		log.Errorf("SOMETHING HAPPEN: %v", err)
 	}
+	db := ctn.Get("postgres").(*gorm.DB)
+	db.AutoMigrate(&model.User{})
 
 	server := grpc.NewServer(
 		grpc.StreamInterceptor(grpc_middleware.ChainStreamServer(
@@ -111,7 +99,7 @@ func main() {
 		)),
 	)
 
-	rpc.Apply(server, ctx)
+	rpc.Apply(server, ctn)
 
 	grpc_prometheus.Register(server)
 	// Register Prometheus metrics handler.

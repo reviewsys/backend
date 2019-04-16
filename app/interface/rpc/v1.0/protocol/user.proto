@@ -1,12 +1,12 @@
 syntax = "proto3";
-package user;
+package protocol;
 import "google/protobuf/timestamp.proto";
 import "github.com/infobloxopen/protoc-gen-gorm/options/gorm.proto";
 import "github.com/infobloxopen/atlas-app-toolkit/rpc/resource/resource.proto";
 import "google/protobuf/field_mask.proto";
 import "github.com/infobloxopen/atlas-app-toolkit/query/collection_operators.proto";
 
-option go_package = "github.com/reviewsys/backend/app/interface/rpc/v1.0/protocol/user;user";
+option go_package = "github.com/reviewsys/backend/app/interface/rpc/v1.0/protocol";
 
 service UserService {
   option (gorm.server).autogen = true;

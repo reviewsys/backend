@@ -1,9 +1,10 @@
 package usecase
 
 import (
-	"github.com/reviewsys/backend/app/domain/model"
-	"github.com/reviewsys/backend/app/repository"
 	"github.com/infobloxopen/atlas-app-toolkit/rpc/resource"
+	"github.com/reviewsys/backend/app/domain/model"
+	"github.com/reviewsys/backend/app/domain/repository"
+	"github.com/reviewsys/backend/app/domain/service"
 )
 
 type UserUsecase interface {
@@ -15,29 +16,33 @@ type UserUsecase interface {
 }
 
 type userUsecase struct {
-	userRepos repository.UserRepository
+	repo    repository.UserRepository
+	service *service.UserService
+}
+
+func NewUserUsecase(repo repository.UserRepository, service *service.UserService) *userUsecase {
+	return &userUsecase{
+		repo:    repo,
+		service: service,
+	}
 }
 
 func (u *userUsecase) GetByID(id *resource.Identifier) (*model.User, error) {
-	return u.userRepos.GetByID(id)
+	return u.repo.GetByID(id)
 }
 
 func (u *userUsecase) Update(user *model.User) error {
-	return u.userRepos.Update(user)
+	return u.repo.Update(user)
 }
 
 func (u *userUsecase) GetByTeamID(teamID int64) (*model.User, error) {
-	return u.userRepos.GetByTeamID(teamID)
+	return u.repo.GetByTeamID(teamID)
 }
 
 func (u *userUsecase) Store(user *model.User) error {
-	return u.userRepos.Store(user)
+	return u.repo.Store(user)
 }
 
 func (u *userUsecase) Delete(user *model.User) error {
-	return u.userRepos.Delete(user)
-}
-
-func NewUserUsecase(u repository.UserRepository) UserUsecase {
-	return &userUsecase{u}
+	return u.repo.Delete(user)
 }
