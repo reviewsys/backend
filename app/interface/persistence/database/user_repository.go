@@ -1,4 +1,4 @@
-package repository
+package database
 
 import (
 	"github.com/jinzhu/gorm"
@@ -8,16 +8,16 @@ import (
 	"github.com/reviewsys/backend/app/domain/model"
 )
 
-type databaseUserRepository struct {
+type userRepository struct {
 	Conn *gorm.DB
 }
 
-func NewDatabaseUserRepository(Conn *gorm.DB) UserRepository {
+func NewUserRepository(Conn *gorm.DB) *userRepository {
 
-	return &databaseUserRepository{Conn}
+	return &userRepository{Conn: Conn}
 }
 
-func (r *databaseUserRepository) GetByID(id *resource.Identifier) (*model.User, error) {
+func (r *userRepository) GetByID(id *resource.Identifier) (*model.User, error) {
 	user := model.User{}
 	err := r.Conn.First(&user, id).Error
 	if err != nil {
@@ -27,7 +27,7 @@ func (r *databaseUserRepository) GetByID(id *resource.Identifier) (*model.User, 
 	return &user, nil
 }
 
-func (r *databaseUserRepository) GetByTeamID(teamID int64) (*model.User, error) {
+func (r *userRepository) GetByTeamID(teamID int64) (*model.User, error) {
 	user := model.User{}
 	err := r.Conn.First(&user, teamID).Error
 	if err != nil {
@@ -37,7 +37,7 @@ func (r *databaseUserRepository) GetByTeamID(teamID int64) (*model.User, error) 
 	return &user, nil
 }
 
-func (r *databaseUserRepository) Store(user *model.User) error {
+func (r *userRepository) Store(user *model.User) error {
 	err := r.Conn.Create(&user).Error
 	if err != nil {
 		log.Error(err)
@@ -46,7 +46,7 @@ func (r *databaseUserRepository) Store(user *model.User) error {
 	return nil
 }
 
-func (r *databaseUserRepository) Delete(user *model.User) error {
+func (r *userRepository) Delete(user *model.User) error {
 	err := r.Conn.Delete(&user).Error
 	if err != nil {
 		log.Error(err)
@@ -55,7 +55,7 @@ func (r *databaseUserRepository) Delete(user *model.User) error {
 	return nil
 }
 
-func (r *databaseUserRepository) Update(user *model.User) error {
+func (r *userRepository) Update(user *model.User) error {
 	err := r.Conn.Save(&user).Error
 	if err != nil {
 		log.Error(err)
