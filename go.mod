@@ -12,7 +12,6 @@ require (
 	github.com/golang/protobuf v1.3.1
 	github.com/grpc-ecosystem/go-grpc-middleware v1.0.0
 	github.com/grpc-ecosystem/go-grpc-prometheus v1.2.0
-	github.com/hatajoe/8am v0.0.0-20180904020102-452eff7c5cb7
 	github.com/infobloxopen/atlas-app-toolkit v0.17.0
 	github.com/infobloxopen/protoc-gen-gorm v0.16.0
 	github.com/jinzhu/gorm v1.9.2
