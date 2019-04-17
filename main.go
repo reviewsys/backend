@@ -14,11 +14,9 @@ import (
 	grpc_recovery "github.com/grpc-ecosystem/go-grpc-middleware/recovery"
 	grpc_prometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
-	"github.com/reviewsys/backend/app/domain/model"
 	"github.com/reviewsys/backend/app/registry"
 	log "github.com/sirupsen/logrus"
 
-	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 	cfg "github.com/reviewsys/backend/config"
 	"google.golang.org/grpc"
@@ -83,8 +81,6 @@ func main() {
 	if err != nil {
 		log.Errorf("SOMETHING HAPPEN: %v", err)
 	}
-	db := ctn.Get("postgres").(*gorm.DB)
-	db.AutoMigrate(&model.User{})
 
 	server := grpc.NewServer(
 		grpc.StreamInterceptor(grpc_middleware.ChainStreamServer(
@@ -106,7 +102,6 @@ func main() {
 	http.Handle("/metrics", promhttp.Handler())
 
 	go func() {
-		log.Printf("start grpc server port: %s", port)
 		log.Info("Server Run at ", config.GetString("server.address"))
 		server.Serve(list)
 		if err != nil {
