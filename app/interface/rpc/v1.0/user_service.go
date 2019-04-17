@@ -8,7 +8,7 @@ import (
 	"github.com/infobloxopen/atlas-app-toolkit/rpc/resource"
 	"github.com/reviewsys/backend/app/domain/model"
 	"github.com/reviewsys/backend/app/interface/rpc/v1.0/protocol"
-	usecase "github.com/reviewsys/backend/app/usecase"
+	"github.com/reviewsys/backend/app/usecase"
 )
 
 type userService struct {
@@ -34,5 +34,11 @@ func (s *userService) Read(ctx context.Context, req *protocol.ReadUserRequest) (
 	if resp == nil {
 		return nil, model.NOT_FOUND_ERROR
 	}
-	return &protocol.ReadUserResponse(resp), nil
+	return &protocol.ReadUserResponse{
+		Result: &protocol.User{
+			Id:      resp.ID,
+			TeamId:  resp.TeamID,
+			IsAdmin: resp.IsAdmin,
+		},
+	}, nil
 }
