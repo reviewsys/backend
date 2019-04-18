@@ -1,3 +1,0 @@
-[submodule "vendor/github.com/grpc-ecosystem/grpc-gateway"]
-	path = vendor/github.com/grpc-ecosystem/grpc-gateway
-	url = https://github.com/grpc-ecosystem/grpc-gateway.git
