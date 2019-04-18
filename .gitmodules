@@ -1,9 +1,3 @@
 [submodule "vendor/github.com/grpc-ecosystem/grpc-gateway"]
 	path = vendor/github.com/grpc-ecosystem/grpc-gateway
 	url = https://github.com/grpc-ecosystem/grpc-gateway.git
-[submodule "vendor/github.com/infobloxopen/protoc-gen-gorm"]
-	path = vendor/github.com/infobloxopen/protoc-gen-gorm
-	url = https://github.com/infobloxopen/protoc-gen-gorm.git
-[submodule "vendor/github.com/infobloxopen/atlas-app-toolkit"]
-	path = vendor/github.com/infobloxopen/atlas-app-toolkit
-	url = https://github.com/infobloxopen/atlas-app-toolkit.git
