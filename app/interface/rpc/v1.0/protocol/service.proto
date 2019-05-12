@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package service;
+
+import "google/protobuf/empty.proto";
+
+option go_package = "github.com/reviewsys/backend/app/interface/rpc/v1.0/protocol;protocol";
+
+message VersionResponse {
+  string version = 1;
+}
+
+service Backend {
+  rpc GetVersion (google.protobuf.Empty) returns (VersionResponse) {
+    
+  }
+}
