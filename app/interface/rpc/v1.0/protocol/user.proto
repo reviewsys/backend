@@ -4,6 +4,7 @@ import "google/protobuf/timestamp.proto";
 import "github.com/infobloxopen/protoc-gen-gorm/options/gorm.proto";
 import "google/protobuf/field_mask.proto";
 import "github.com/infobloxopen/atlas-app-toolkit/query/collection_operators.proto";
+import "github.com/infobloxopen/atlas-app-toolkit/rpc/resource/resource.proto";
 
 option go_package = "github.com/reviewsys/backend/app/interface/rpc/v1.0/protocol;protocol";
 
@@ -23,7 +24,7 @@ message User {
         ormable: true,
         multi_account: true
     };
-    uint64 id = 1 [(gorm.field).tag = {type: "uuid" primary_key: true}];
+    atlas.rpc.Identifier id = 1 [(gorm.field).tag = {type: "uuid" primary_key: true}];
     google.protobuf.Timestamp created_at = 2;
     google.protobuf.Timestamp updated_at = 3;
     google.protobuf.Timestamp deleted_at = 4;
@@ -41,7 +42,7 @@ message CreateUserResponse {
 }
 
 message ReadUserRequest {
-    uint64 id = 1;
+    atlas.rpc.Identifier id = 1;
 }
 
 message ReadUserResponse {
@@ -58,7 +59,7 @@ message UpdateUserResponse {
 }
 
 message DeleteUserRequest {
-    uint64 id = 1;
+    atlas.rpc.Identifier id = 1;
 }
 
 message DeleteUserResponse {
