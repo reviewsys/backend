@@ -3,7 +3,6 @@ package registry
 import (
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
-	"github.com/reviewsys/backend/app/domain/model"
 	"github.com/reviewsys/backend/app/domain/service"
 	"github.com/reviewsys/backend/app/interface/persistence/database"
 	"github.com/reviewsys/backend/app/usecase"
@@ -56,10 +55,13 @@ func (c *Container) Clean() error {
 	return c.ctn.Clean()
 }
 
+func (c *Container) Delete() error {
+	return c.ctn.Delete()
+}
+
 func buildUserUsecase(ctn di.Container) (interface{}, error) {
 	// Retrieve the connection.
 	db := ctn.Get("postgres").(*gorm.DB)
-	db.AutoMigrate(&model.User{})
 	repo := database.NewUserRepository(db)
 	service := service.NewUserService(repo)
 	return usecase.NewUserUsecase(repo, service), nil

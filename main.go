@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/signal"
 
+	"github.com/infobloxopen/atlas-app-toolkit/gorm/resource"
 	"github.com/reviewsys/backend/app/interface/rpc"
 
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
@@ -20,6 +21,7 @@ import (
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 	cfg "github.com/reviewsys/backend/config"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/reflection"
 )
 
 var (
@@ -29,13 +31,16 @@ var (
 
 func init() {
 	config = cfg.NewViperConfig()
-
 	if config.GetBool(`debug`) {
 		log.SetLevel(log.DebugLevel)
 		log.Debug("Service RUN on DEBUG mode")
 	} else {
 		log.SetLevel(log.InfoLevel)
 	}
+	resource.RegisterApplication(config.GetString(`app.id`))
+	resource.SetPlural()
+
+	log.Debugf("resource application name: %v", resource.ApplicationName())
 }
 
 func main() {
@@ -81,6 +86,7 @@ func main() {
 	if err != nil {
 		log.Errorf("SOMETHING HAPPEN: %v", err)
 	}
+	defer ctn.Delete()
 
 	server := grpc.NewServer(
 		grpc.StreamInterceptor(grpc_middleware.ChainStreamServer(
@@ -97,6 +103,7 @@ func main() {
 
 	rpc.Apply(server, ctn)
 
+	reflection.Register(server)
 	grpc_prometheus.Register(server)
 	// Register Prometheus metrics handler.
 	http.Handle("/metrics", promhttp.Handler())
