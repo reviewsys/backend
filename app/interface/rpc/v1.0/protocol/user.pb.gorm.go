@@ -13,12 +13,14 @@ import gorm1 "github.com/jinzhu/gorm"
 import gorm2 "github.com/infobloxopen/atlas-app-toolkit/gorm"
 import ptypes1 "github.com/golang/protobuf/ptypes"
 import query1 "github.com/infobloxopen/atlas-app-toolkit/query"
+import resource1 "github.com/infobloxopen/atlas-app-toolkit/gorm/resource"
 
 import fmt "fmt"
 import math "math"
 import _ "github.com/golang/protobuf/ptypes/timestamp"
 import _ "google.golang.org/genproto/protobuf/field_mask"
 import _ "github.com/infobloxopen/atlas-app-toolkit/query"
+import _ "github.com/infobloxopen/atlas-app-toolkit/rpc/resource"
 
 // Reference imports to suppress errors if they are not otherwise used.
 var _ = fmt.Errorf
@@ -28,7 +30,7 @@ type UserORM struct {
 	AccountID string
 	CreatedAt time.Time
 	DeletedAt *time.Time
-	Id        uint64 `gorm:"type:uuid;primary_key"`
+	Id        string `gorm:"type:uuid;primary_key"`
 	IsAdmin   bool
 	Name      string
 	TeamId    int64
@@ -50,7 +52,11 @@ func (m *User) ToORM(ctx context.Context) (UserORM, error) {
 			return to, err
 		}
 	}
-	to.Id = m.Id
+	if v, err := resource1.Decode(&User{}, m.Id); err != nil {
+		return to, err
+	} else if v != nil {
+		to.Id = v.(string)
+	}
 	if m.CreatedAt != nil {
 		var t time.Time
 		if t, err = ptypes1.Timestamp(m.CreatedAt); err != nil {
@@ -96,7 +102,11 @@ func (m *UserORM) ToPB(ctx context.Context) (User, error) {
 			return to, err
 		}
 	}
-	to.Id = m.Id
+	if v, err := resource1.Encode(&User{}, m.Id); err != nil {
+		return to, err
+	} else {
+		to.Id = v
+	}
 	if to.CreatedAt, err = ptypes1.TimestampProto(m.CreatedAt); err != nil {
 		return to, err
 	}
@@ -182,7 +192,7 @@ func DefaultReadUser(ctx context.Context, in *User, db *gorm1.DB) (*User, error)
 	if err != nil {
 		return nil, err
 	}
-	if ormObj.Id == 0 {
+	if ormObj.Id == "" {
 		return nil, errors1.EmptyIdError
 	}
 	if hook, ok := interface{}(&ormObj).(UserORMWithBeforeReadApplyQuery); ok {
@@ -229,7 +239,7 @@ func DefaultDeleteUser(ctx context.Context, in *User, db *gorm1.DB) error {
 	if err != nil {
 		return err
 	}
-	if ormObj.Id == 0 {
+	if ormObj.Id == "" {
 		return errors1.EmptyIdError
 	}
 	if hook, ok := interface{}(&ormObj).(UserORMWithBeforeDelete_); ok {
@@ -259,13 +269,13 @@ func DefaultDeleteUserSet(ctx context.Context, in []*User, db *gorm1.DB) error {
 		return errors1.NilArgumentError
 	}
 	var err error
-	keys := []uint64{}
+	keys := []string{}
 	for _, obj := range in {
 		ormObj, err := obj.ToORM(ctx)
 		if err != nil {
 			return err
 		}
-		if ormObj.Id == 0 {
+		if ormObj.Id == "" {
 			return errors1.EmptyIdError
 		}
 		keys = append(keys, ormObj.Id)
