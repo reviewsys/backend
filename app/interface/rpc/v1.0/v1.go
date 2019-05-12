@@ -9,4 +9,5 @@ import (
 
 func Apply(server *grpc.Server, ctn *registry.Container) {
 	protocol.RegisterUserServiceServer(server, NewUserService(ctn.Resolve("user-usecase").(usecase.UserUsecase)))
+	protocol.RegisterBackendServer(server, NewBackendService(ctn.Resolve("backend-usecase").(usecase.BackendUsecase)))
 }
