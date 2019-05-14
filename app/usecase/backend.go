@@ -2,11 +2,12 @@ package usecase
 
 import (
 	"github.com/golang/protobuf/ptypes/empty"
+	"github.com/reviewsys/backend/app/domain/model"
 	"github.com/reviewsys/backend/app/domain/repository"
 )
 
 type BackendUsecase interface {
-	GetVersion(*empty.Empty) (string, error)
+	GetVersions(*empty.Empty) (*model.Versions, error)
 }
 
 type backendUsecase struct {
@@ -19,6 +20,6 @@ func NewBackendUsecase(repo repository.BackendRepository) *backendUsecase {
 	}
 }
 
-func (u *backendUsecase) GetVersion(e *empty.Empty) (string, error) {
-	return u.repo.GetVersion(e)
+func (u *backendUsecase) GetVersions(e *empty.Empty) (*model.Versions, error) {
+	return u.repo.GetVersions(e)
 }

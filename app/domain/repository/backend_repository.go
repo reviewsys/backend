@@ -1,7 +1,10 @@
 package repository
 
-import "github.com/golang/protobuf/ptypes/empty"
+import (
+	"github.com/golang/protobuf/ptypes/empty"
+	"github.com/reviewsys/backend/app/domain/model"
+)
 
 type BackendRepository interface {
-	GetVersion(e *empty.Empty) (string, error)
+	GetVersions(*empty.Empty) (*model.Versions, error)
 }

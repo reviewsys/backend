@@ -26,14 +26,17 @@ func NewContainer(dsn string) (*Container, error) {
 	if err := builder.Add([]di.Def{
 		{
 			Name:  "user-usecase",
+			Scope: di.App,
 			Build: buildUserUsecase,
 		},
 		{
 			Name:  "backend-usecase",
+			Scope: di.App,
 			Build: buildBackendUsecase,
 		},
 		{
-			Name: "postgres",
+			Name:  "postgres",
+			Scope: di.App,
 			Build: func(ctn di.Container) (interface{}, error) {
 				db, err := gorm.Open("postgres", dsn)
 				db.DB().SetMaxOpenConns(1)

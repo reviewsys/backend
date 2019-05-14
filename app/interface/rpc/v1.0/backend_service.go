@@ -18,7 +18,11 @@ func NewBackendService(backendUsecase usecase.BackendUsecase) *backendService {
 	}
 }
 
-func (s *backendService) GetVersion(ctx context.Context, e *empty.Empty) (*pb.VersionResponse, error) {
-	version, err := s.backendUsecase.GetVersion(e)
-	return &pb.VersionResponse{Version: version}, err
+func (s *backendService) GetVersions(ctx context.Context, e *empty.Empty) (*pb.VersionResponse, error) {
+	v, err := s.backendUsecase.GetVersions(e)
+	return &pb.VersionResponse{
+		Version:   v.Version,
+		Revision:  v.Revision,
+		BuildDate: v.BuildDate,
+	}, err
 }

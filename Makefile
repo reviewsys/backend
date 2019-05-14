@@ -1,6 +1,10 @@
 # vi: ft=make
 
 GOPATH:=$(shell go env GOPATH)
+VERSION ?= $(shell git describe --tags --abbrev=0)
+REVISION ?= $(shell git describe --always)
+BUILD_DATE ?= $(shell date +'%Y-%m-%dT%H:%M:%SZ')
+LDFLAGS := -ldflags "-X main.version=${VERSION} -X main.revision=$(REVISION) -X main.buildDate=$(BUILD_DATE)"
 
 .PHONY: proto test
 
@@ -24,7 +28,8 @@ client:
 
 
 build: proto
-	go build -o build/backend main.go
+	# go build $(LDFLAGS) -o bin/backend main.go
+	go build -o bin/backend main.go
     
 test:
 	@go get -u github.com/rakyll/gotest
