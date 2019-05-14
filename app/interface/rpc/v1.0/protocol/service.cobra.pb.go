@@ -244,20 +244,20 @@ func _BackendRoundTrip(sample interface{}, fn _BackendRoundTripFunc) error {
 	return fn(client, d, em.NewEncoder(os.Stdout))
 }
 
-var _BackendGetVersionClientCommand = &cobra.Command{
-	Use:  "getversion",
-	Long: "GetVersion client\n\nYou can use environment variables with the same name of the command flags.\nAll caps and s/-/_, e.g. SERVER_ADDR.",
+var _BackendGetVersionsClientCommand = &cobra.Command{
+	Use:  "getversions",
+	Long: "GetVersions client\n\nYou can use environment variables with the same name of the command flags.\nAll caps and s/-/_, e.g. SERVER_ADDR.",
 	Example: `
 Save a sample request to a file (or refer to your protobuf descriptor to create one):
-	getversion -p > req.json
+	getversions -p > req.json
 
 Submit request using file:
-	getversion -f req.json
+	getversions -f req.json
 
 Authenticate using the Authorization header (requires transport security):
 	export AUTH_TOKEN=your_access_token
 	export SERVER_ADDR=api.example.com:443
-	echo '{json}' | getversion --tls`,
+	echo '{json}' | getversions --tls`,
 	Run: func(cmd *cobra.Command, args []string) {
 		var v google_protobuf_pb.Empty
 		err := _BackendRoundTrip(v, func(cli BackendClient, in iocodec.Decoder, out iocodec.Encoder) error {
@@ -267,7 +267,7 @@ Authenticate using the Authorization header (requires transport security):
 				return err
 			}
 
-			resp, err := cli.GetVersion(context.Background(), &v)
+			resp, err := cli.GetVersions(context.Background(), &v)
 
 			if err != nil {
 				return err
@@ -283,6 +283,6 @@ Authenticate using the Authorization header (requires transport security):
 }
 
 func init() {
-	BackendClientCommand.AddCommand(_BackendGetVersionClientCommand)
-	_DefaultBackendClientCommandConfig.AddFlags(_BackendGetVersionClientCommand.Flags())
+	BackendClientCommand.AddCommand(_BackendGetVersionsClientCommand)
+	_DefaultBackendClientCommandConfig.AddFlags(_BackendGetVersionsClientCommand.Flags())
 }

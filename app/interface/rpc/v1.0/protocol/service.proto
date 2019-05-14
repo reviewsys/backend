@@ -8,10 +8,12 @@ option go_package = "github.com/reviewsys/backend/app/interface/rpc/v1.0/protoco
 
 message VersionResponse {
   string version = 1;
+  string revision = 2;
+  string buildDate = 3;
 }
 
 service Backend {
-  rpc GetVersion (google.protobuf.Empty) returns (VersionResponse) {
+  rpc GetVersions (google.protobuf.Empty) returns (VersionResponse) {
     
   }
 }

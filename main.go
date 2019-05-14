@@ -86,7 +86,6 @@ func main() {
 	if err != nil {
 		log.Errorf("SOMETHING HAPPEN: %v", err)
 	}
-	defer ctn.Delete()
 
 	server := grpc.NewServer(
 		grpc.StreamInterceptor(grpc_middleware.ChainStreamServer(
