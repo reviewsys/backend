@@ -5,10 +5,10 @@ import (
 	"github.com/reviewsys/backend/app/domain/model"
 )
 
-const (
-	Version   = "0.0.2"
-	Revision  = "0000000"
-	BuildDate = "2006-01-02T04:05:06Z"
+var (
+	Version   string = "0.0.2"
+	Revision  string = "0000000"
+	BuildDate string = "2006-01-02T04:05:06Z"
 )
 
 type backendRepository struct {

@@ -4,7 +4,11 @@ GOPATH:=$(shell go env GOPATH)
 VERSION ?= $(shell git describe --tags --abbrev=0)
 REVISION ?= $(shell git describe --always)
 BUILD_DATE ?= $(shell date +'%Y-%m-%dT%H:%M:%SZ')
-LDFLAGS := -ldflags "-X main.version=${VERSION} -X main.revision=$(REVISION) -X main.buildDate=$(BUILD_DATE)"
+LDFLAGSPATH := github.com/reviewsys/backend/app/interface/persistence/memory
+LDFLAGS := -ldflags "-X ${LDFLAGSPATH}.Version=${VERSION} -X ${LDFLAGSPATH}.Revision=$(REVISION) -X ${LDFLAGSPATH}.BuildDate=$(BUILD_DATE)"
+
+# go source files, ignore vendor directory
+SRC = $(shell find . -type f -name '*.go' -not -path "./vendor/*")
 
 .PHONY: proto test
 
@@ -28,9 +32,14 @@ client:
 
 
 build: proto
-	# go build $(LDFLAGS) -o bin/backend main.go
-	go build -o bin/backend main.go
+	go build $(LDFLAGS) -o bin/backend main.go
     
 test:
 	@go get -u github.com/rakyll/gotest
 	gotest -p 1 -v ./...
+
+fmt:
+	@gofmt -l -w $(SRC)
+
+simplify:
+	@gofmt -s -l -w $(SRC)
