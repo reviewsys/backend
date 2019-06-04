@@ -1,10 +1,10 @@
 package database
 
 import (
+	"github.com/infobloxopen/atlas-app-toolkit/rpc/resource"
 	"github.com/jinzhu/gorm"
 	log "github.com/sirupsen/logrus"
 
-	"github.com/infobloxopen/atlas-app-toolkit/rpc/resource"
 	"github.com/reviewsys/backend/app/domain/model"
 )
 

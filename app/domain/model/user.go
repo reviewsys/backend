@@ -1,9 +1,11 @@
 package model
 
-import "github.com/reviewsys/backend/app/interface/rpc/v1.0/protocol"
+import (
+	pb "github.com/reviewsys/backend/app/interface/rpc/v1.0/protocol"
+)
 
 type User struct {
-	protocol.UserORM
+	pb.User
 	// Base
 	// TeamID  int64  `json:"team_id"`
 	// Name    string `json:"name"`

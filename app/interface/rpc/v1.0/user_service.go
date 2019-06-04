@@ -5,7 +5,6 @@ import (
 
 	pb "github.com/reviewsys/backend/app/interface/rpc/v1.0/protocol"
 	"github.com/reviewsys/backend/app/usecase"
-	log "github.com/sirupsen/logrus"
 )
 
 type userService struct {
@@ -23,8 +22,19 @@ func (s *userService) Create(ctx context.Context, req *pb.CreateUserRequest) (*p
 }
 
 func (s *userService) Read(ctx context.Context, req *pb.ReadUserRequest) (*pb.ReadUserResponse, error) {
-	log.Info("Read Request: ", req)
-	return &pb.ReadUserResponse{}, nil
+	user, err := s.userUsecase.GetByID(req.Id)
+	if err != nil {
+		return nil, err
+	}
+
+	return &pb.ReadUserResponse{
+		Result: &pb.User{
+			Id:      user.Id,
+			TeamId:  user.TeamId,
+			Name:    user.Name,
+			IsAdmin: user.IsAdmin,
+		},
+	}, nil
 }
 
 func (s *userService) Update(ctx context.Context, req *pb.UpdateUserRequest) (*pb.UpdateUserResponse, error) {

@@ -3,7 +3,7 @@
 GOPATH:=$(shell go env GOPATH)
 VERSION ?= $(shell git describe --tags --abbrev=0)
 REVISION ?= $(shell git describe --always)
-BUILD_DATE ?= $(shell date +'%Y-%m-%dT%H:%M:%SZ')
+BUILD_DATE ?= $(shell date '+%FT%T%z')
 LDFLAGSPATH := github.com/reviewsys/backend/app/interface/persistence/memory
 LDFLAGS := -ldflags "-X ${LDFLAGSPATH}.Version=${VERSION} -X ${LDFLAGSPATH}.Revision=$(REVISION) -X ${LDFLAGSPATH}.BuildDate=$(BUILD_DATE)"
 

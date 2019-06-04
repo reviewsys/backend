@@ -35,10 +35,11 @@ func NewContainer(dsn string) (*Container, error) {
 			Build: buildBackendUsecase,
 		},
 		{
-			Name:  "postgres",
+			Name:  "postgres-pool",
 			Scope: di.App,
 			Build: func(ctn di.Container) (interface{}, error) {
 				db, err := gorm.Open("postgres", dsn)
+				db.LogMode(true)
 				db.DB().SetMaxOpenConns(1)
 				return db, err
 			},
@@ -70,7 +71,7 @@ func (c *Container) Delete() error {
 
 func buildUserUsecase(ctn di.Container) (interface{}, error) {
 	// Retrieve the connection.
-	db := ctn.Get("postgres").(*gorm.DB)
+	db := ctn.Get("postgres-pool").(*gorm.DB)
 	db.AutoMigrate(&model.User{})
 	repo := database.NewUserRepository(db)
 	service := service.NewUserService(repo)
