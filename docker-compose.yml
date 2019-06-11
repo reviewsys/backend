@@ -2,13 +2,19 @@
 version: "3.6"
 services:
   backend:
-    image: reviewsys/backend:latest
+    image: reviewsys/backend:1.0.0
     # image: golang:alpine
     build:
       context: ./
       dockerfile: ./docker/Dockerfile
     depends_on:
       - db
+      - jaeger
+    environment:
+      JAEGER_AGENT_HOST: jaeger
+      JAEGER_AGENT_PORT: 6831
+      JAEGER_SAMPLER_TYPE: const
+      JAEGER_SAMPLER_PARAM: 1
     ports:
       - 8080:8080
     volumes:
@@ -26,3 +32,10 @@ services:
     ports:
       - 5432:5432
     container_name: db
+
+  jaeger:
+    image: jaegertracing/all-in-one:1.12
+    ports:
+      - "6831:6831/udp"
+      - "16686:16686"
+    container_name: jaeger

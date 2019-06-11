@@ -4,7 +4,9 @@ require (
 	cloud.google.com/go v0.38.0 // indirect
 	github.com/DATA-DOG/go-sqlmock v1.3.3 // indirect
 	github.com/beorn7/perks v1.0.0 // indirect
+	github.com/codahale/hdrhistogram v0.0.0-20161010025455-3a0bb77429bd // indirect
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible // indirect
+	github.com/fatih/color v1.7.0 // indirect
 	github.com/fiorix/protoc-gen-cobra v0.0.0-20181029091941-dffa0bfa45cc
 	github.com/gogo/protobuf v1.2.1 // indirect
 	github.com/golang/protobuf v1.3.1
@@ -19,20 +21,27 @@ require (
 	github.com/kelseyhightower/envconfig v1.3.0
 	github.com/konsorten/go-windows-terminal-sequences v1.0.2 // indirect
 	github.com/lib/pq v1.1.1 // indirect
+	github.com/mattn/go-colorable v0.1.2 // indirect
+	github.com/opentracing/opentracing-go v1.1.0
 	github.com/prometheus/client_golang v0.9.3-0.20190127221311-3c4408c8b829
 	github.com/prometheus/client_model v0.0.0-20190129233127-fd36f4220a90 // indirect
 	github.com/prometheus/common v0.3.0 // indirect
 	github.com/prometheus/procfs v0.0.0-20190416084830-8368d24ba045 // indirect
+	github.com/rakyll/gotest v0.0.0-20180125184505-86f0749cd8cc // indirect
 	github.com/sarulabs/di v2.0.0+incompatible
 	github.com/sirupsen/logrus v1.4.1
 	github.com/spf13/cobra v0.0.3
 	github.com/spf13/pflag v1.0.3
 	github.com/spf13/viper v1.3.2
 	github.com/stretchr/testify v1.3.0 // indirect
-	golang.org/x/crypto v0.0.0-20190510104115-cbcb75029529 // indirect
-	golang.org/x/net v0.0.0-20190509222800-a4d6f7feada5
+	github.com/uber-go/atomic v1.4.0 // indirect
+	github.com/uber/jaeger-client-go v2.16.0+incompatible
+	github.com/uber/jaeger-lib v2.0.0+incompatible // indirect
+	go.uber.org/atomic v1.4.0 // indirect
+	golang.org/x/crypto v0.0.0-20190605123033-f99c8df09eb5 // indirect
+	golang.org/x/net v0.0.0-20190603091049-60506f45cf65
 	golang.org/x/oauth2 v0.0.0-20190402181905-9f3314589c9a
-	golang.org/x/sys v0.0.0-20190509141414-a5b02f93d862 // indirect
+	golang.org/x/sys v0.0.0-20190602015325-4c4f7f33c9ed // indirect
 	golang.org/x/text v0.3.2 // indirect
 	google.golang.org/appengine v1.5.0 // indirect
 	google.golang.org/genproto v0.0.0-20190502173448-54afdca5d873

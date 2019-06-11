@@ -7,14 +7,15 @@ import (
 	"os"
 	"os/signal"
 
-	"github.com/infobloxopen/atlas-app-toolkit/gorm/resource"
-	"github.com/reviewsys/backend/app/interface/rpc"
-
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	grpc_logrus "github.com/grpc-ecosystem/go-grpc-middleware/logging/logrus"
 	grpc_recovery "github.com/grpc-ecosystem/go-grpc-middleware/recovery"
+	grpc_opentracing "github.com/grpc-ecosystem/go-grpc-middleware/tracing/opentracing"
 	grpc_prometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
+	"github.com/infobloxopen/atlas-app-toolkit/gorm/resource"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"github.com/reviewsys/backend/app/interface/persistence/tracing"
+	"github.com/reviewsys/backend/app/interface/rpc"
 	"github.com/reviewsys/backend/app/registry"
 	log "github.com/sirupsen/logrus"
 
@@ -87,16 +88,24 @@ func main() {
 		log.Errorf("SOMETHING HAPPEN: %v", err)
 	}
 
+	tracer, closer, err := tracing.NewJaeger(config)
+	if err != nil {
+		log.Errorf("cannot init Jaeger: %v", err)
+	}
+	defer closer.Close()
+
 	server := grpc.NewServer(
 		grpc.StreamInterceptor(grpc_middleware.ChainStreamServer(
 			grpc_prometheus.StreamServerInterceptor,
 			grpc_logrus.StreamServerInterceptor(logger, opts...),
 			grpc_recovery.StreamServerInterceptor(),
+			grpc_opentracing.StreamServerInterceptor(grpc_opentracing.WithTracer(tracer)),
 		)),
 		grpc.UnaryInterceptor(grpc_middleware.ChainUnaryServer(
 			grpc_prometheus.UnaryServerInterceptor,
 			grpc_logrus.UnaryServerInterceptor(logger, opts...),
 			grpc_recovery.UnaryServerInterceptor(),
+			grpc_opentracing.UnaryServerInterceptor(grpc_opentracing.WithTracer(tracer)),
 		)),
 	)
 

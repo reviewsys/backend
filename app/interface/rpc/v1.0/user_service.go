@@ -18,23 +18,16 @@ func NewUserService(userUsecase usecase.UserUsecase) *userService {
 }
 
 func (s *userService) Create(ctx context.Context, req *pb.CreateUserRequest) (*pb.CreateUserResponse, error) {
-	return &pb.CreateUserResponse{}, nil
-}
-
-func (s *userService) Read(ctx context.Context, req *pb.ReadUserRequest) (*pb.ReadUserResponse, error) {
-	user, err := s.userUsecase.GetByID(req.Id)
+	user, err := s.userUsecase.Store(ctx, req.Payload)
 	if err != nil {
 		return nil, err
 	}
+	return &pb.CreateUserResponse{Result: user}, err
 
-	return &pb.ReadUserResponse{
-		Result: &pb.User{
-			Id:      user.Id,
-			TeamId:  user.TeamId,
-			Name:    user.Name,
-			IsAdmin: user.IsAdmin,
-		},
-	}, nil
+}
+
+func (s *userService) Read(ctx context.Context, req *pb.ReadUserRequest) (*pb.ReadUserResponse, error) {
+	return &pb.ReadUserResponse{Result: &pb.User{Id: req.Id}}, nil
 }
 
 func (s *userService) Update(ctx context.Context, req *pb.UpdateUserRequest) (*pb.UpdateUserResponse, error) {

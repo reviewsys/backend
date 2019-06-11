@@ -1,12 +1,15 @@
 package registry
 
 import (
+	"context"
+	"database/sql"
+
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
-	"github.com/reviewsys/backend/app/domain/model"
 	"github.com/reviewsys/backend/app/domain/service"
 	"github.com/reviewsys/backend/app/interface/persistence/database"
 	"github.com/reviewsys/backend/app/interface/persistence/memory"
+	pb "github.com/reviewsys/backend/app/interface/rpc/v1.0/protocol"
 	"github.com/reviewsys/backend/app/usecase"
 	"github.com/sarulabs/di"
 	log "github.com/sirupsen/logrus"
@@ -40,11 +43,25 @@ func NewContainer(dsn string) (*Container, error) {
 			Build: func(ctn di.Container) (interface{}, error) {
 				db, err := gorm.Open("postgres", dsn)
 				db.LogMode(true)
+				db.SetLogger(log.NewEntry(log.New()))
 				db.DB().SetMaxOpenConns(1)
 				return db, err
 			},
 			Close: func(obj interface{}) error {
 				return obj.(*gorm.DB).Close()
+			},
+		},
+		{
+			// Define the connection in the Request scope.
+			// Each request will use its own connection.
+			Name:  "postgres",
+			Scope: di.Request,
+			Build: func(ctn di.Container) (interface{}, error) {
+				pool := ctn.Get("postgres-pool").(*sql.DB)
+				return pool.Conn(context.Background())
+			},
+			Close: func(obj interface{}) error {
+				return obj.(*sql.Conn).Close()
 			},
 		},
 	}...); err != nil {
@@ -72,7 +89,7 @@ func (c *Container) Delete() error {
 func buildUserUsecase(ctn di.Container) (interface{}, error) {
 	// Retrieve the connection.
 	db := ctn.Get("postgres-pool").(*gorm.DB)
-	db.AutoMigrate(&model.User{})
+	db.AutoMigrate(&pb.UserORM{})
 	repo := database.NewUserRepository(db)
 	service := service.NewUserService(repo)
 	return usecase.NewUserUsecase(repo, service), nil

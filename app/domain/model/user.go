@@ -5,7 +5,7 @@ import (
 )
 
 type User struct {
-	pb.User
+	pb.UserORM
 	// Base
 	// TeamID  int64  `json:"team_id"`
 	// Name    string `json:"name"`
